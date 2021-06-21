@@ -1,18 +1,45 @@
 using NUnit.Framework;
 
-namespace Tests
+namespace RbTree
 {
-    public class Tests
-    {
+    [TestFixture]
+    public class Tests {
+        private RbTree<int> tree;
         [SetUp]
-        public void Setup()
-        {
+        public void Setup() {
+            tree = new RbTree<int>();
         }
 
         [Test]
-        public void Test1()
-        {
-            Assert.Pass();
+        public void TestLeftRotationOnRoot() {
+            tree.Root = new RbTree<int>.Node(5, tree.Nil) { Color = RbTree<int>.Node.ColorEnum.Black };
+            tree.Root.Right = new RbTree<int>.Node(10, tree.Root) { Color = RbTree<int>.Node.ColorEnum.Red };
+            
+            Assert.AreEqual(5, tree.Root.Key);
+            Assert.AreEqual(10, tree.Root.Right.Key);
+            Assert.AreEqual(RbTree<int>.Node.Leaf(), tree.Root.Left);
+            TestContext.Progress.WriteLine($"Root: {tree.Root}, Right: {tree.Root.Right}, Left: {tree.Root.Left}");
+
+            tree.LeftRotate(tree.Root);
+            TestContext.Progress.WriteLine($"Root: {tree.Root}, Right: {tree.Root.Right}, Left: {tree.Root.Left}");
+            Assert.AreEqual(10, tree.Root.Key);
+            Assert.AreEqual(5, tree.Root.Left.Key);
+        }
+
+        [Test]
+        public void TestRightRotationOnRoot() {
+            tree.Root = new RbTree<int>.Node(10, tree.Nil) { Color = RbTree<int>.Node.ColorEnum.Black };
+            tree.Root.Left = new RbTree<int>.Node(5, tree.Root) { Color = RbTree<int>.Node.ColorEnum.Red };
+            
+            Assert.AreEqual(10, tree.Root.Key);
+            Assert.AreEqual(5, tree.Root.Left.Key);
+            Assert.AreEqual(RbTree<int>.Node.Leaf(), tree.Root.Right);
+            TestContext.Progress.WriteLine($"Root: {tree.Root}, Right: {tree.Root.Right}, Left: {tree.Root.Left}");
+
+            tree.RightRotate(tree.Root);
+            TestContext.Progress.WriteLine($"Root: {tree.Root}, Right: {tree.Root.Right}, Left: {tree.Root.Left}");
+            Assert.AreEqual(5, tree.Root.Key);
+            Assert.AreEqual(10, tree.Root.Right.Key);
         }
     }
 }
