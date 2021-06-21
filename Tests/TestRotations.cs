@@ -1,9 +1,17 @@
 using NUnit.Framework;
 
+/*
+ * While you would likely want LeftRotate and RightRotate to ultimately be non-public methods,
+ * they're kind of fundamental methods for a working R-B tree, and so actually being able to test them and make
+ * sure they function as intended supersedes, in my opinion, that desire to keep them out of the public API
+ * for the time being. There are some ways to hack NUnit to let it test internal/protected methods that I may
+ * try once I'm at the polishing stage of the project, but for now, simplicity is better.
+ */
+
 namespace RbTree
 {
     [TestFixture]
-    public class Tests {
+    public class TestRotations {
         private RbTree<int> tree;
         [SetUp]
         public void Setup() {

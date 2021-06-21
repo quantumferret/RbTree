@@ -110,15 +110,66 @@ namespace RbTree {
             node.Parent = temp;
             }
 
-        private void InsertFixup(ref Node n) {
-            throw new NotImplementedException();
+        private void InsertFixup(Node z) {
+            while (z.Parent.Color == Node.ColorEnum.Red) {
+                if (z.Parent == z.Parent.Parent.Left) {
+                    Node y = z.Parent.Parent.Right;
+                    if (y.Color == Node.ColorEnum.Red) {
+                        z.Parent.Color = Node.ColorEnum.Black;
+                        y.Color = Node.ColorEnum.Black;
+                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        z = z.Parent.Parent;
+                    } else {
+                        if (z == z.Parent.Right) {
+                            z = z.Parent;
+                            LeftRotate(z);
+                        }
+                        z.Parent.Color = Node.ColorEnum.Black;
+                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        RightRotate(z.Parent.Parent);
+                    }
+                } else {
+                    Node y = z.Parent.Parent.Left;
+                    if (y.Color == Node.ColorEnum.Red) {
+                        z.Parent.Color = Node.ColorEnum.Black;
+                        y.Color = Node.ColorEnum.Black;
+                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        z = z.Parent.Parent;
+                    } else {
+                        if (z == z.Parent.Left) {
+                            z = z.Parent;
+                            RightRotate(z);
+                        }
+                        z.Parent.Color = Node.ColorEnum.Black;
+                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        LeftRotate(z.Parent.Parent);
+                    }
+                }
+            }
+            Root.Color = Node.ColorEnum.Black;
+        }
+        
+        public void Insert(Node z) {
+            Node y = Nil;
+            Node x = Root;
+            while (x != Nil) {
+                y = x;
+                x = z.Key.CompareTo(x.Key) < 0 ? x.Left : x.Right;
+            }
+            z.Parent = y;
+            if (y == Nil)
+                Root = z;
+            else if (z.Key.CompareTo(y.Key) < 0)
+                y.Left = z;
+            else
+                y.Right = z;
+            z.Left = Nil;
+            z.Right = Nil;
+            z.Color = Node.ColorEnum.Red;
+            InsertFixup(z);
         }
 
         private void DeleteFixup(ref Node n) {
-            throw new NotImplementedException();
-        }
-
-        public bool Insert(T t) {
             throw new NotImplementedException();
         }
 
