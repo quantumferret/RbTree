@@ -1,6 +1,7 @@
 using NUnit.Framework;
+using RbTree;
 
-namespace RbTree {
+namespace Tests {
     [TestFixture]
     public class TestBstMethods {
         private RbTree<int> tree;
@@ -16,7 +17,7 @@ namespace RbTree {
             tree.Add(11);
             tree.Add(1);
             tree.Add(0);
-            tree.Add(-1);   // here, 5 becomes the root after rebalancing.
+            tree.Add(-1);
             tree.Add(-2);
         }
 

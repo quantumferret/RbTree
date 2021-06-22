@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using static System.Console;
 
-[assembly:InternalsVisibleTo("Tests")]
+[assembly : InternalsVisibleTo("Tests")]
 
 namespace RbTree {
     public class RbTree<T> where T : IComparable<T> {
@@ -23,7 +23,7 @@ namespace RbTree {
             public readonly bool IsLeaf;
 
             public static Node Leaf() => Nil;
-            private static readonly Node Nil = new Node();
+            private static readonly Node Nil = new();
 
             public Node() {
                 Color = ColorEnum.Black;
@@ -69,7 +69,7 @@ namespace RbTree {
                 subtreeRoot = subtreeRoot.Right;
             return subtreeRoot;
         }
-        
+
         public Node Predecessor(Node n) {
             if (n.Left != Nil)
                 return Maximum(n.Left);
@@ -91,7 +91,7 @@ namespace RbTree {
             }
             return p;
         }
-        
+
         internal void LeftRotate(Node node) {
             Node temp = node.Right;
             node.Right = temp.Left;
@@ -107,7 +107,7 @@ namespace RbTree {
             temp.Left = node;
             node.Parent = temp;
         }
-        
+
         internal void RightRotate(Node node) {
             Node temp = node.Left;
             node.Left = temp.Right;
@@ -122,7 +122,7 @@ namespace RbTree {
                 node.Parent.Left = temp;
             temp.Right = node;
             node.Parent = temp;
-            }
+        }
 
         private void InsertFixup(Node z) {
             while (z.Parent.Color == Node.ColorEnum.Red) {
@@ -162,7 +162,7 @@ namespace RbTree {
             }
             Root.Color = Node.ColorEnum.Black;
         }
-        
+
         private void Insert(Node z) {
             Node y = Nil;
             Node x = Root;
@@ -182,7 +182,7 @@ namespace RbTree {
             z.Color = Node.ColorEnum.Red;
             InsertFixup(z);
         }
-        
+
         public void Add(T key) {
             Node node = new Node(key);
             Insert(node);
@@ -212,8 +212,7 @@ namespace RbTree {
                     if (w.Left.Color == Node.ColorEnum.Black && w.Right.Color == Node.ColorEnum.Black) {
                         w.Color = Node.ColorEnum.Red;
                         x = x.Parent;
-                    }
-                    else {
+                    } else {
                         if (w.Right.Color == Node.ColorEnum.Black) {
                             w.Left.Color = Node.ColorEnum.Black;
                             w.Color = Node.ColorEnum.Red;
@@ -226,8 +225,7 @@ namespace RbTree {
                         LeftRotate(x.Parent);
                         x = Root;
                     }
-                }
-                else {
+                } else {
                     Node w = x.Parent.Left;
                     if (w.Color == Node.ColorEnum.Red) {
                         w.Color = Node.ColorEnum.Black;
@@ -238,8 +236,7 @@ namespace RbTree {
                     if (w.Right.Color == Node.ColorEnum.Black && w.Left.Color == Node.ColorEnum.Black) {
                         w.Color = Node.ColorEnum.Red;
                         x = x.Parent;
-                    }
-                    else {
+                    } else {
                         if (w.Left.Color == Node.ColorEnum.Black) {
                             w.Right.Color = Node.ColorEnum.Black;
                             w.Color = Node.ColorEnum.Red;
@@ -264,12 +261,10 @@ namespace RbTree {
             if (z.Left == Nil) {
                 x = z.Right;
                 Transplant(z, z.Right);
-            }
-            else if (z.Right == Nil) {
+            } else if (z.Right == Nil) {
                 x = z.Left;
                 Transplant(z, z.Left);
-            }
-            else {
+            } else {
                 y = Minimum(z.Right);
                 yOriginalColor = y.Color;
                 x = y.Right;
@@ -329,14 +324,11 @@ namespace RbTree {
             throw new NotImplementedException();
         }
 
-        /*
-         * Basic print method that works best with shorter keys
-         */
         public void Print() {
             Queue<(int depth, Node node)> queue = new Queue<(int depth, Node node)>();
-            List<(int depth, Node node)> list = new List<(int, Node)>();
+            List<(int depth, Node node)> list = new();
             queue.Enqueue((0, Root));
-            
+
             while (queue.Count != 0) {
                 (int level, Node temp) pair = queue.Dequeue();
                 list.Add(pair);

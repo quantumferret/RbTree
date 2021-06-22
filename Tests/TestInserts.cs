@@ -1,6 +1,7 @@
 using NUnit.Framework;
+using RbTree;
 
-namespace RbTree {
+namespace Tests {
     [TestFixture]
     public class TestInserts {
         private RbTree<int> tree;
@@ -38,9 +39,9 @@ namespace RbTree {
             Assert.AreEqual(2, tree.Root.Left.Left.Right.Key);
             Assert.AreEqual(RbTree<int>.Node.ColorEnum.Red, tree.Root.Left.Left.Right.Color);
 
-            tree.Add(-1);   // here, 5 becomes the root after rebalancing.
+            tree.Add(-1); // here, 5 becomes the root after rebalancing.
             tree.Add(-2);
-            
+
             Assert.AreEqual(5, tree.Root.Key);
             Assert.AreEqual(RbTree<int>.Node.ColorEnum.Black, tree.Root.Color);
             Assert.AreEqual(1, tree.Root.Left.Key);
