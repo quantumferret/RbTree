@@ -17,7 +17,7 @@ namespace RbTree {
             public Node Left;
             public Node Right;
             public Node Parent;
-            public T Key {get; set;}
+            public T Key {get; private set;}
             public override string ToString() => IsLeaf ? "Nil" : $"({Key.ToString()}, {Color})";
             public ColorEnum Color;
             public readonly bool IsLeaf;
@@ -90,6 +90,16 @@ namespace RbTree {
                 p = p.Parent;
             }
             return p;
+        }
+
+        public bool Contains(T key) {
+            var node = Root;
+            while (node != Nil) {
+                if (key.CompareTo(node.Key) == 0)
+                    return true;
+                node = key.CompareTo(node.Key) < 0 ? node.Left : node.Right;
+            }
+            return false;
         }
 
         internal void LeftRotate(Node node) {
