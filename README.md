@@ -14,7 +14,7 @@ This assumes you're using a bash-like shell.
   * `dotnet build`
 
 #### Run unit tests
-while in the RbTree directory, run
+While in the RbTree directory, run
   `dotnet test`
 
 Documentation to come.
