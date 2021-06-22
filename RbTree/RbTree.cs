@@ -264,7 +264,7 @@ namespace RbTree {
             x.Color = Node.ColorEnum.Black;
         }
 
-        private void Delete(Node z) {
+        internal void Delete(Node z) {
             Node y = z;
             Node.ColorEnum yOriginalColor = y.Color;
             Node x;
@@ -281,11 +281,14 @@ namespace RbTree {
                 if (y.Parent == z)
                     x.Parent = y;
                 else {
-                    Transplant(z, y);
-                    y.Left = z.Left;
-                    y.Left.Parent = y;
-                    y.Color = z.Color;
+                    Transplant(y, y.Right);
+                    y.Right = z.Right;
+                    y.Right.Parent = y;
                 }
+                Transplant(z, y);
+                y.Left = z.Left;
+                y.Left.Parent = y;
+                y.Color = z.Color;
             }
             if (yOriginalColor == Node.ColorEnum.Black)
                 DeleteFixup(x);
