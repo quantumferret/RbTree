@@ -18,9 +18,10 @@ namespace RbTree {
             public Node Right;
             public Node Parent;
             public T Key {get; private set;}
-            public override string ToString() => IsLeaf ? "Nil" : $"({Key.ToString()}, {Color})";
+            public override string ToString() => IsLeaf ? "Nil" : $"({Key.ToString()}: {Count}, {Color})";
             public ColorEnum Color;
             public readonly bool IsLeaf;
+            public int Count {get; internal set;}
 
             public static Node Leaf() => Nil;
             private static readonly Node Nil = new();
@@ -33,29 +34,28 @@ namespace RbTree {
             public Node(T key) {
                 Key = key;
                 Parent = Left = Right = Leaf();
+                Count = 1;
             }
 
             public Node(T key, Node parent) {
                 Key = key;
                 Parent = parent;
                 Left = Right = Leaf();
+                Count = 1;
             }
         }
 
 
         public Node Root;
         public readonly Node Nil = Node.Leaf();
-        public int Size {get; private set;}
 
         public RbTree() {
             Root = Nil;
-            Size = 0;
         }
 
         public RbTree(T key) {
             Root = new Node(key, Nil);
             Root.Left = Root.Right = Nil;
-            Size = 1;
         }
 
         public Node Minimum(Node subtreeRoot) {
@@ -194,9 +194,13 @@ namespace RbTree {
         }
 
         public void Add(T key) {
+            Node duplicate = Get(key);
+            if (duplicate != Nil) {
+                duplicate.Count += 1;
+                return;
+            }
             Node node = new Node(key);
             Insert(node);
-            Size += 1;
         }
 
         private void Transplant(Node u, Node v) {
@@ -295,9 +299,16 @@ namespace RbTree {
         }
 
         public void Remove(T key) {
+            if (Root == Nil)
+                return;
             Node del = Get(key);
+            if (del == Nil)
+                return;
+            if (del.Count > 1) {
+                del.Count -= 1;
+                return;
+            }
             Delete(del);
-            Size -= 1;
         }
 
         public Node Get(T key) {
@@ -351,13 +362,16 @@ namespace RbTree {
                 if (pair.temp.Right != Nil)
                     queue.Enqueue((pair.level, pair.temp.Right));
             }
-
+            
             list = list.OrderByDescending(p => p.node.Key).ToList();
+            
             foreach (var n in list) {
                 string pad = string.Concat(Enumerable.Repeat("    ", n.depth));
+                Write(pad);
                 BackgroundColor = ConsoleColor.White;
                 ForegroundColor = n.node.Color == Node.ColorEnum.Red ? ConsoleColor.Red : ConsoleColor.Black;
-                WriteLine($"{pad}{n.node.Key}");
+                WriteLine($"{n.node.Key}: {n.node.Count}");
+                ResetColor();
             }
         }
     }
