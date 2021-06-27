@@ -345,6 +345,7 @@ namespace RbTree {
          */
         internal void SetBlackHeight() {
             Node y = Root;
+            Bh = 0;
             while (y != Nil) {
                 y = y.Right != Nil ? y.Right : y.Left;
                 if (y.Color == Node.ColorEnum.Black)
@@ -356,7 +357,7 @@ namespace RbTree {
             T t1Max = t1.Maximum(t1.Root).Key;
             T t2Min = t2.Minimum(t2.Root).Key;
             if (key.CompareTo(t1Max) > 0 && key.CompareTo(t2Min) < 0) {
-                if (t1.Bh == t2.Bh) {
+                if (t1.Bh >= t2.Bh) {
                     Node k = new Node(key) { Color = Node.ColorEnum.Red };
                     t1.Root.Parent = t2.Root.Parent = k;
                     k.Left = t1.Root;

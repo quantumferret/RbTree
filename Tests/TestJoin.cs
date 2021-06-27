@@ -15,6 +15,9 @@ namespace Tests {
             t1.Add(4);
             t1.Add(1);
             t1.Add(5);
+            t1.Add(0);
+            t1.Add(-1);
+            t1.Add(-2);
 
             t2 = new RbTree<int>();
             t2.Add(9);
@@ -26,6 +29,7 @@ namespace Tests {
 
         [Test]
         public void Test() {
+            TestContext.Progress.WriteLine($"{t1.Bh}, {t2.Bh}");
             var t3 = Join(t1, 6, t2);
             t3.Print();
         }
