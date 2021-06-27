@@ -48,14 +48,17 @@ namespace RbTree {
 
         public Node Root;
         public readonly Node Nil = Node.Leaf();
+        internal int Bh;
 
         public RbTree() {
             Root = Nil;
+            Bh = 0;
         }
 
         public RbTree(T key) {
             Root = new Node(key, Nil);
             Root.Left = Root.Right = Nil;
+            Bh = 0;
         }
 
         public Node Minimum(Node subtreeRoot) {
@@ -171,6 +174,7 @@ namespace RbTree {
                 }
             }
             Root.Color = Node.ColorEnum.Black;
+            SetBlackHeight();
         }
 
         private void Insert(Node z) {
@@ -201,6 +205,7 @@ namespace RbTree {
             }
             Node node = new Node(key);
             Insert(node);
+            SetBlackHeight();
         }
 
         private void Transplant(Node u, Node v) {
@@ -266,6 +271,7 @@ namespace RbTree {
                 }
             }
             x.Color = Node.ColorEnum.Black;
+            SetBlackHeight();
         }
 
         internal void Delete(Node z) {
@@ -318,20 +324,54 @@ namespace RbTree {
             return node;
         }
 
-        public int Depth(Node x) {
+        internal Node MaxWithBh(int blackHeight) {
+            if (Bh == blackHeight)
+                return Root;
             Node y = Root;
-            int depth = 0;
-            while (y != Nil && x.Key.CompareTo(y.Key) != 0) {
-                y = x.Key.CompareTo(y.Key) < 0 ? y.Left : y.Right;
-                depth += 1;
+            int nodeBh = Bh;
+            while (y != Nil) {
+                y = y.Right;
+                if (y.Color == Node.ColorEnum.Black && nodeBh == blackHeight)
+                    return y;
+                if (y.Color == Node.ColorEnum.Black && nodeBh != blackHeight)
+                    nodeBh -= 1;
             }
-            return depth;
+            return Nil;
         }
 
-        public static RbTree<T> Join(RbTree<T> t1, RbTree<T> t2) {
-            throw new NotImplementedException();
+        /*
+         * Runs in O(log(n)) time, so using it in inserts and deletes doesn't change the asymptotic running time
+         * of those operations.
+         */
+        internal void SetBlackHeight() {
+            Node y = Root;
+            while (y != Nil) {
+                y = y.Right != Nil ? y.Right : y.Left;
+                if (y.Color == Node.ColorEnum.Black)
+                    Bh += 1;
+            }
         }
 
+        public static RbTree<T> Join(RbTree<T> t1, T key, RbTree<T> t2) {
+            T t1Max = t1.Maximum(t1.Root).Key;
+            T t2Min = t2.Minimum(t2.Root).Key;
+            if (key.CompareTo(t1Max) > 0 && key.CompareTo(t2Min) < 0) {
+                if (t1.Bh == t2.Bh) {
+                    Node k = new Node(key) { Color = Node.ColorEnum.Red };
+                    t1.Root.Parent = t2.Root.Parent = k;
+                    k.Left = t1.Root;
+                    k.Right = t2.Root;
+                    t1.Root = k;
+                    t1.InsertFixup(k);
+                }
+            }
+            else {
+                throw new ArgumentException(
+                    "The join key must be greater than all keys in Tree 1 and less than all keys in Tree 2.");
+            }
+            return t1;
+        }
+        
         public static (RbTree<T> left, RbTree<T> right) Split(T t) {
             throw new NotImplementedException();
         }
