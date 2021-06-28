@@ -560,8 +560,9 @@ namespace RbTree {
                 Write(pad);
                 BackgroundColor = ConsoleColor.White;
                 ForegroundColor = n.node.Color == Node.ColorEnum.Red ? ConsoleColor.Red : ConsoleColor.Black;
-                WriteLine($"{n.node.Key}: {n.node.Count}");
+                Write($"{n.node.Key}: {n.node.Count}");
                 ResetColor();
+                WriteLine();
             }
         }
     }

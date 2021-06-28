@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Linq;
 using RbTree;
 using static System.Console;
 
 namespace Examples {
     class Program {
         static void Display() {
+            WriteLine("Enter a size, start value, and end value, separated by spaces.");
+            var s = ReadLine()!.Trim();
+            var l = s.Split().ToList();
+            var (size, from, to) = (int.Parse(l[0]), int.Parse(l[1]), int.Parse(l[2]));
             var tree = new RbTree<int>();
             var rng = new Random();
-            for (int i = 0; i < 50; ++i)
-                tree.Add(rng.Next(0, 100));
+            var toInclusive = to + 1;
+            for (int i = 0; i < size; ++i)
+                tree.Add(rng.Next(from, toInclusive));
             tree.Print();
         }
 
@@ -67,6 +73,7 @@ namespace Examples {
         }
         
         static void Main(string[] args) {
+            Display();
         }
     }
 }
