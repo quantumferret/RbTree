@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using static System.Console;
@@ -19,9 +20,9 @@ namespace RbTree {
             public Node Right;
             public Node Parent;
             public T Key {get; private set;}
-            public override string ToString() => IsLeaf ? "Nil" : $"({Key.ToString()}: {Count}, {Color})";
+            public override string ToString() => _isLeaf ? "Nil" : $"({Key.ToString()}: {Count}, {Color})";
             public ColorEnum Color;
-            public readonly bool IsLeaf;
+            private readonly bool _isLeaf;
             public int Count {get; internal set;}
 
             public static Node Leaf() => Nil;
@@ -29,7 +30,7 @@ namespace RbTree {
 
             public Node() {
                 Color = ColorEnum.Black;
-                IsLeaf = true;
+                _isLeaf = true;
             }
 
             public Node(T key) {
@@ -44,12 +45,27 @@ namespace RbTree {
                 Left = Right = Leaf();
                 Count = 1;
             }
+
+            internal Node(Node left, T key, ColorEnum color, Node right) {
+                Left = left;
+                Key = key;
+                Color = color;
+                Right = right;
+            }
+
+            public Node(Node n) {
+                Key = n.Key;
+                Parent = n.Parent;
+                Left = n.Left;
+                Right = n.Right;
+                Color = n.Color;
+                Count = n.Count;
+            }
         }
-
-
+        
         public Node Root;
         public readonly Node Nil = Node.Leaf();
-        public int Bh {get; internal set;}
+        public int Bh {get; private set;}
 
         public RbTree() {
             Root = Nil;
@@ -61,6 +77,27 @@ namespace RbTree {
             Root.Left = Root.Right = Nil;
             Bh = 0;
         }
+
+        public RbTree(Node root) {
+            Root = root;
+            SetBlackHeight();
+        }
+
+        public RbTree<T> Subtree(Node subroot) {
+            RbTree<T> tree = new RbTree<T>();
+            Node n = subroot;
+            Queue<Node> q = new Queue<Node>();
+            q.Enqueue(n);
+            while (q.Count != 0) {
+                Node v = q.Dequeue();
+                if (v.Left != Nil)
+                    q.Enqueue(v.Left);
+                if (v.Right != Nil)
+                    q.Enqueue(v.Right);
+                tree.Insert(new Node(v));
+            }
+            return tree;
+        } 
 
         internal bool RedConsistency(Node n) {
             if (n == Nil)
@@ -85,13 +122,9 @@ namespace RbTree {
             return leftBh + (n.Color == Node.ColorEnum.Black ? 1 : 0);
         }
 
-        internal bool BlackConsistency() {
-            return CheckBlackHeight(Root) != 0;
-        }
+        internal bool BlackConsistency() => CheckBlackHeight(Root) != 0;
 
-        public bool Validate() {
-            return RedConsistency(Root) && BlackConsistency();
-        }
+        public bool Validate() => RedConsistency(Root) && BlackConsistency();
 
         public Node Minimum(Node subtreeRoot) {
             while (subtreeRoot.Left != Nil)
@@ -237,7 +270,6 @@ namespace RbTree {
             }
             Node node = new Node(key);
             Insert(node);
-            SetBlackHeight();
         }
 
         private void Transplant(Node u, Node v) {
@@ -400,7 +432,7 @@ namespace RbTree {
             }
         }
 
-        internal int NodeBh(Node n) {
+        public int NodeBh(Node n) {
             if (n == Root)
                 return Bh;
             int bh = Bh;
@@ -445,9 +477,7 @@ namespace RbTree {
                 // since both original roots are black, and the new root must be black, the resulting tree's Bh
                 // must be incremented
                 t1.Bh += 1;
-            }
-            
-            else if (t1.Bh > t2.Bh) {
+            } else if (t1.Bh > t2.Bh) {
                 Node n = t1.MaxWithBh(t2.Bh);
                 n.Parent.Right = k;
                 k.Left = n;
@@ -456,9 +486,7 @@ namespace RbTree {
                 n.Parent = t2.Root.Parent = k;
                 if (k.Parent.Color == Node.ColorEnum.Red)
                     t1.InsertFixup(k);
-            }
-            
-            else if (t1.Bh < t2.Bh) {
+            } else if (t1.Bh < t2.Bh) {
                 Node n = t2.MinWithBh(t1.Bh);
                 n.Parent.Left = k;
                 k.Right = n;
@@ -469,11 +497,32 @@ namespace RbTree {
                     t2.InsertFixup(k);
                 returnT1 = false;
             }
-            
+
             return returnT1 ? t1 : t2;
         }
 
-        public static (RbTree<T> left, RbTree<T> right) Split(T t) {
+        internal static (Node left, T key, Node.ColorEnum color, Node right) Expose(Node n) {
+            Node left = n.Left;
+            T key = n.Key;
+            Node.ColorEnum c = n.Color;
+            Node right = n.Right;
+
+            return (left, key, c, right);
+        }
+
+        public List<Node> PathToNode(Node n) {
+            Node current = Root;
+            List<Node> path = new List<Node>();
+            while (current != Nil && current != n) {
+                path.Add(current);
+                current = current.Key.CompareTo(n.Key) > 1 ? current.Left : current.Right;
+            }
+            if (current == Nil)
+                throw new ArgumentException("Node not found");
+            return path;
+        }
+        
+        public (RbTree<T> left, bool containsKey, RbTree<T> right) Split(Node n, T key) {
             throw new NotImplementedException();
         }
 

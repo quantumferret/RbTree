@@ -37,9 +37,36 @@ namespace Examples {
             var t3 = RbTree<int>.Join(t1, 6, t2);
             t3.Print();
         }
+
+        static void SubtreeCheck() {
+            var t1 = new RbTree<int>();
+            t1.Add(3);
+            t1.Add(2);
+            t1.Add(4);
+            t1.Add(1);
+            t1.Add(5);
+            t1.Add(0);
+            t1.Add(-1);
+            t1.Add(-2);
+            t1.Add(-3);
+            t1.Add(-4);
+            t1.Add(-5);
+            
+            t1.Print();
+            
+            WriteLine(Environment.NewLine);
+
+            var t2 = t1.Subtree(t1.Root.Left.Left);
+            t2.Print();
+
+            t1.Remove(-5);
+            
+            WriteLine(Environment.NewLine);
+
+            t2.Print();
+        }
         
         static void Main(string[] args) {
-            JoinExample();
         }
     }
 }
