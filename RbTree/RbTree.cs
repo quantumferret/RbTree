@@ -371,14 +371,16 @@ namespace RbTree {
 
         /// <summary>
         /// This method takes two trees and a key, such that <c>t1.Maximum()</c> is less than <c>k</c>
-        /// and <c>k</c> is less than <c>t2.Minimum()</c>, may destroy t1 and t2, and returns a new tree
-        /// with 
+        /// and <c>k</c> is less than <c>t2.Minimum()</c>, may destroy t1 and t2, and returns a tree
+        /// containing all elements in the original two trees, and k.
         /// </summary>
-        /// <param name="t1"></param>
-        /// <param name="key"></param>
-        /// <param name="t2"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
+        /// <param name="t1">A tree with all keys less than param <c>key</c></param>
+        /// <param name="key">A value greater than all keys in <c>t1</c> and less than all keys in <c>t2</c></param>
+        /// <param name="t2">A tree with all keys greater than param <c>key</c></param>
+        /// <returns>A tree containing all elements in the original two trees, and <c>key</c></returns>
+        /// <exception cref="ArgumentException">
+        /// If <c>key</c> is not greater than <c>t1</c>'s maximum key and less than <c>t2</c>'s minimum key
+        /// </exception>
         public static RbTree<T> Join(RbTree<T> t1, T key, RbTree<T> t2) {
 
             T t1Max = t1.Maximum(t1.Root).Key;
@@ -403,9 +405,6 @@ namespace RbTree {
             
             else if (t1.Bh > t2.Bh) {
                 Node n = t1.MaxWithBh(t2.Bh);
-                if (n == t1.Nil)
-                    throw new ArgumentException(
-                        "Param t1 must contain a node with a black height equal to t2's black height.");
                 n.Parent.Right = k;
                 k.Left = n;
                 k.Right = t2.Root;
@@ -417,9 +416,6 @@ namespace RbTree {
             
             else if (t1.Bh < t2.Bh) {
                 Node n = t2.MinWithBh(t1.Bh);
-                if (n == t2.Nil)
-                    throw new ArgumentException(
-                        "Param t2 must contain a node with a black height equal to t1's black height.");
                 n.Parent.Left = k;
                 k.Right = n;
                 k.Left = t1.Root;
