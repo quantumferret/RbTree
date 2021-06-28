@@ -62,6 +62,8 @@ namespace Tests {
             Assert.AreEqual(RbTree<int>.Node.ColorEnum.Black, tree.Root.Right.Right.Color);
             Assert.AreEqual(11, tree.Root.Right.Right.Right.Key);
             Assert.AreEqual(RbTree<int>.Node.ColorEnum.Red, tree.Root.Right.Right.Right.Color);
+            
+            Assert.AreEqual(true, tree.Validate());
         }
     }
 }

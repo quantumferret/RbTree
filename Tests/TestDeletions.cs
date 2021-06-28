@@ -44,6 +44,8 @@ namespace Tests {
             Assert.AreEqual(-2, tree.Root.Left.Left.Key);
             Assert.AreEqual(2, tree.Root.Left.Right.Key);
             Assert.AreEqual(0, tree.Root.Left.Right.Left.Key);
+            
+            Assert.AreEqual(true, tree.Validate());
         }
 
     }
