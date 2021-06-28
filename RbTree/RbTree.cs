@@ -62,6 +62,37 @@ namespace RbTree {
             Bh = 0;
         }
 
+        internal bool RedConsistency(Node n) {
+            if (n == Nil)
+                return true;
+            if (n.Color == Node.ColorEnum.Red &&
+                (n.Left.Color == Node.ColorEnum.Red || n.Right.Color == Node.ColorEnum.Red))
+                return false;
+            return RedConsistency(n.Left) && RedConsistency(n.Right);
+        }
+
+        internal int CheckBlackHeight(Node n) {
+            if (n == Nil)
+                return 1;
+            int leftBh = CheckBlackHeight(n.Left);
+            if (leftBh == 0)
+                return leftBh;
+            int rightBh = CheckBlackHeight(n.Right);
+            if (rightBh == 0)
+                return rightBh;
+            if (leftBh != rightBh)
+                return 0;
+            return leftBh + (n.Color == Node.ColorEnum.Black ? 1 : 0);
+        }
+
+        internal bool BlackConsistency() {
+            return CheckBlackHeight(Root) != 0;
+        }
+
+        public bool Validate() {
+            return RedConsistency(Root) && BlackConsistency();
+        }
+
         public Node Minimum(Node subtreeRoot) {
             while (subtreeRoot.Left != Nil)
                 subtreeRoot = subtreeRoot.Left;
@@ -367,6 +398,19 @@ namespace RbTree {
                 if (y.Color == Node.ColorEnum.Black)
                     Bh += 1;
             }
+        }
+
+        internal int NodeBh(Node n) {
+            if (n == Root)
+                return Bh;
+            int bh = Bh;
+            Node current = Root.Key.CompareTo(n.Key) > 0 ? Root.Left : Root.Right;
+            while (current != n) {
+                if (current.Color == Node.ColorEnum.Black)
+                    bh -= 1;
+                current = current.Key.CompareTo(n.Key) > 0 ? current.Left : current.Right;
+            }
+            return bh;
         }
 
         /// <summary>
