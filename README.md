@@ -3,7 +3,7 @@
 # RbTree
 A red-black tree implementation in C#.
 
-#### Set up and build
+### Set up and build
 You will need to have `dotnet` installed, as well as the .Net Core 5 SDK and runtime.
 This assumes you're using a bash-like shell.
 * Clone the repository
@@ -13,11 +13,11 @@ This assumes you're using a bash-like shell.
 * Then, simply build the project with dotnet
   * `dotnet build`
 
-#### Run unit tests
+### Run unit tests
 While in the RbTree directory, run
   `dotnet test`
   
-#### Run examples
+### Run examples
 From the RbTree directory, run `dotnet run --project Examples/`
 
 Documentation to come.
