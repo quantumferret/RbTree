@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using static System.Console;
@@ -48,7 +49,7 @@ namespace RbTree {
 
         public Node Root;
         public readonly Node Nil = Node.Leaf();
-        internal int Bh;
+        public int Bh {get; internal set;}
 
         public RbTree() {
             Root = Nil;
@@ -329,12 +330,27 @@ namespace RbTree {
                 return Root;
             Node y = Root;
             int nodeBh = Bh;
-            while (y != Nil) {
+            while (y.Right != Nil) {
                 y = y.Right;
-                if (y.Color == Node.ColorEnum.Black && nodeBh == blackHeight)
-                    return y;
-                if (y.Color == Node.ColorEnum.Black && nodeBh != blackHeight)
+                if (y.Color == Node.ColorEnum.Black)
                     nodeBh -= 1;
+                if (nodeBh == blackHeight)
+                    return y;
+            }
+            return Nil;
+        }
+
+        internal Node MinWithBh(int blackHeight) {
+            if (Bh == blackHeight)
+                return Root;
+            Node y = Root;
+            int nodeBh = Bh;
+            while (y.Left != Nil) {
+                y = y.Left;
+                if (y.Color == Node.ColorEnum.Black)
+                    nodeBh -= 1;
+                if (nodeBh == blackHeight)
+                    return y;
             }
             return Nil;
         }
@@ -346,33 +362,77 @@ namespace RbTree {
         internal void SetBlackHeight() {
             Node y = Root;
             Bh = 0;
-            while (y != Nil) {
-                y = y.Right != Nil ? y.Right : y.Left;
+            while (y.Right != Nil) {
+                y = y.Right;
                 if (y.Color == Node.ColorEnum.Black)
                     Bh += 1;
             }
         }
 
+        /// <summary>
+        /// This method takes two trees and a key, such that <c>t1.Maximum()</c> is less than <c>k</c>
+        /// and <c>k</c> is less than <c>t2.Minimum()</c>, may destroy t1 and t2, and returns a new tree
+        /// with 
+        /// </summary>
+        /// <param name="t1"></param>
+        /// <param name="key"></param>
+        /// <param name="t2"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static RbTree<T> Join(RbTree<T> t1, T key, RbTree<T> t2) {
+
             T t1Max = t1.Maximum(t1.Root).Key;
             T t2Min = t2.Minimum(t2.Root).Key;
-            if (key.CompareTo(t1Max) > 0 && key.CompareTo(t2Min) < 0) {
-                if (t1.Bh >= t2.Bh) {
-                    Node k = new Node(key) { Color = Node.ColorEnum.Red };
-                    t1.Root.Parent = t2.Root.Parent = k;
-                    k.Left = t1.Root;
-                    k.Right = t2.Root;
-                    t1.Root = k;
-                    t1.InsertFixup(k);
-                }
-            }
-            else {
+
+            if (key.CompareTo(t1Max) <= 0 || key.CompareTo(t2Min) >= 0)
                 throw new ArgumentException(
                     "The join key must be greater than all keys in Tree 1 and less than all keys in Tree 2.");
+
+            bool returnT1 = true;
+            Node k = new Node(key) { Color = Node.ColorEnum.Red };
+            if (t1.Bh == t2.Bh) {
+                k.Color = Node.ColorEnum.Black;
+                t1.Root.Parent = t2.Root.Parent = k;
+                k.Left = t1.Root;
+                k.Right = t2.Root;
+                t1.Root = k;
+                // since both original roots are black, and the new root must be black, the resulting tree's Bh
+                // must be incremented
+                t1.Bh += 1;
             }
-            return t1;
+            
+            else if (t1.Bh > t2.Bh) {
+                Node n = t1.MaxWithBh(t2.Bh);
+                if (n == t1.Nil)
+                    throw new ArgumentException(
+                        "Param t1 must contain a node with a black height equal to t2's black height.");
+                n.Parent.Right = k;
+                k.Left = n;
+                k.Right = t2.Root;
+                k.Parent = n.Parent;
+                n.Parent = t2.Root.Parent = k;
+                if (k.Parent.Color == Node.ColorEnum.Red)
+                    t1.InsertFixup(k);
+            }
+            
+            else if (t1.Bh < t2.Bh) {
+                Node n = t2.MinWithBh(t1.Bh);
+                if (n == t2.Nil)
+                    throw new ArgumentException(
+                        "Param t2 must contain a node with a black height equal to t1's black height.");
+                n.Parent.Left = k;
+                k.Right = n;
+                k.Left = t1.Root;
+                k.Parent = n.Parent;
+                n.Parent = t1.Root.Parent = k;
+                if (k.Parent.Color == Node.ColorEnum.Red)
+                    t2.InsertFixup(k);
+                returnT1 = false;
+            }
+            
+            return returnT1 ? t1 : t2;
         }
-        
+
         public static (RbTree<T> left, RbTree<T> right) Split(T t) {
             throw new NotImplementedException();
         }
@@ -403,9 +463,9 @@ namespace RbTree {
                 if (pair.temp.Right != Nil)
                     queue.Enqueue((pair.level, pair.temp.Right));
             }
-            
+
             list = list.OrderByDescending(p => p.node.Key).ToList();
-            
+
             foreach (var n in list) {
                 string pad = string.Concat(Enumerable.Repeat("    ", n.depth));
                 Write(pad);
