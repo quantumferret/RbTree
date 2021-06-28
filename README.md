@@ -17,7 +17,7 @@ This assumes you're using a bash-like shell.
 While in the RbTree directory, run
   `dotnet test`
   
-### Run examples
-From the RbTree directory, run `dotnet run --project Examples/`
+### Run Examples
+From the RbTree directory, run `dotnet run --project Examples/` (wip)
 
 Documentation to come.
