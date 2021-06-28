@@ -16,5 +16,8 @@ This assumes you're using a bash-like shell.
 #### Run unit tests
 While in the RbTree directory, run
   `dotnet test`
+  
+#### Run examples
+From the RbTree directory, run `dotnet run --project Examples/`
 
 Documentation to come.
