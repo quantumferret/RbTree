@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using static System.Console;
+using static RbTree.ColorEnum;
 
 [assembly : InternalsVisibleTo("Tests")]
 
 namespace RbTree {
-    public class RbTree<T> where T : IComparable<T> {
-        public class Node {
-            public enum ColorEnum {
+    public enum ColorEnum {
                 Red,
                 Black,
             }
-
+    public class RbTree<T> where T : IComparable<T> {
+        public class Node {
             public Node Left;
             public Node Right;
             public Node Parent;
@@ -29,7 +27,7 @@ namespace RbTree {
             private static readonly Node Nil = new();
 
             public Node() {
-                Color = ColorEnum.Black;
+                Color = Black;
                 _isLeaf = true;
             }
 
@@ -102,8 +100,8 @@ namespace RbTree {
         internal bool RedConsistency(Node n) {
             if (n == Nil)
                 return true;
-            if (n.Color == Node.ColorEnum.Red &&
-                (n.Left.Color == Node.ColorEnum.Red || n.Right.Color == Node.ColorEnum.Red))
+            if (n.Color == Red &&
+                (n.Left.Color == Red || n.Right.Color == Red))
                 return false;
             return RedConsistency(n.Left) && RedConsistency(n.Right);
         }
@@ -119,7 +117,7 @@ namespace RbTree {
                 return rightBh;
             if (leftBh != rightBh)
                 return 0;
-            return leftBh + (n.Color == Node.ColorEnum.Black ? 1 : 0);
+            return leftBh + (n.Color == Black ? 1 : 0);
         }
 
         internal bool BlackConsistency() => CheckBlackHeight(Root) != 0;
@@ -203,42 +201,42 @@ namespace RbTree {
         }
 
         private void InsertFixup(Node z) {
-            while (z.Parent.Color == Node.ColorEnum.Red) {
+            while (z.Parent.Color == Red) {
                 if (z.Parent == z.Parent.Parent.Left) {
                     Node y = z.Parent.Parent.Right;
-                    if (y.Color == Node.ColorEnum.Red) {
-                        z.Parent.Color = Node.ColorEnum.Black;
-                        y.Color = Node.ColorEnum.Black;
-                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                    if (y.Color == Red) {
+                        z.Parent.Color = Black;
+                        y.Color = Black;
+                        z.Parent.Parent.Color = Red;
                         z = z.Parent.Parent;
                     } else {
                         if (z == z.Parent.Right) {
                             z = z.Parent;
                             LeftRotate(z);
                         }
-                        z.Parent.Color = Node.ColorEnum.Black;
-                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        z.Parent.Color = Black;
+                        z.Parent.Parent.Color = Red;
                         RightRotate(z.Parent.Parent);
                     }
                 } else {
                     Node y = z.Parent.Parent.Left;
-                    if (y.Color == Node.ColorEnum.Red) {
-                        z.Parent.Color = Node.ColorEnum.Black;
-                        y.Color = Node.ColorEnum.Black;
-                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                    if (y.Color == Red) {
+                        z.Parent.Color = Black;
+                        y.Color = Black;
+                        z.Parent.Parent.Color = Red;
                         z = z.Parent.Parent;
                     } else {
                         if (z == z.Parent.Left) {
                             z = z.Parent;
                             RightRotate(z);
                         }
-                        z.Parent.Color = Node.ColorEnum.Black;
-                        z.Parent.Parent.Color = Node.ColorEnum.Red;
+                        z.Parent.Color = Black;
+                        z.Parent.Parent.Color = Red;
                         LeftRotate(z.Parent.Parent);
                     }
                 }
             }
-            Root.Color = Node.ColorEnum.Black;
+            Root.Color = Black;
             SetBlackHeight();
         }
 
@@ -258,18 +256,19 @@ namespace RbTree {
                 y.Right = z;
             z.Left = Nil;
             z.Right = Nil;
-            z.Color = Node.ColorEnum.Red;
+            z.Color = Red;
             InsertFixup(z);
         }
 
-        public void Add(T key) {
+        public Node Add(T key) {
             Node duplicate = Get(key);
             if (duplicate != Nil) {
                 duplicate.Count += 1;
-                return;
+                return duplicate;
             }
             Node node = new Node(key);
             Insert(node);
+            return node;
         }
 
         private void Transplant(Node u, Node v) {
@@ -283,64 +282,65 @@ namespace RbTree {
         }
 
         private void DeleteFixup(Node x) {
-            while (x != Root && x.Color == Node.ColorEnum.Black) {
+            while (x != Root && x.Color == Black) {
                 if (x == x.Parent.Left) {
                     Node w = x.Parent.Right;
-                    if (w.Color == Node.ColorEnum.Red) {
-                        w.Color = Node.ColorEnum.Black;
-                        x.Parent.Color = Node.ColorEnum.Red;
+                    if (w.Color == Red) {
+                        w.Color = Black;
+                        x.Parent.Color = Red;
                         LeftRotate(x.Parent);
                         w = x.Parent.Right;
                     }
-                    if (w.Left.Color == Node.ColorEnum.Black && w.Right.Color == Node.ColorEnum.Black) {
-                        w.Color = Node.ColorEnum.Red;
+                    if (w.Left.Color == Black && w.Right.Color == Black) {
+                        w.Color = Red;
                         x = x.Parent;
                     } else {
-                        if (w.Right.Color == Node.ColorEnum.Black) {
-                            w.Left.Color = Node.ColorEnum.Black;
-                            w.Color = Node.ColorEnum.Red;
+                        if (w.Right.Color == Black) {
+                            w.Left.Color = Black;
+                            w.Color = Red;
                             RightRotate(w);
                             w = x.Parent.Right;
                         }
                         w.Color = x.Parent.Color;
-                        x.Parent.Color = Node.ColorEnum.Black;
-                        w.Right.Color = Node.ColorEnum.Black;
+                        x.Parent.Color = Black;
+                        w.Right.Color = Black;
                         LeftRotate(x.Parent);
                         x = Root;
                     }
                 } else {
                     Node w = x.Parent.Left;
-                    if (w.Color == Node.ColorEnum.Red) {
-                        w.Color = Node.ColorEnum.Black;
-                        x.Parent.Color = Node.ColorEnum.Red;
+                    if (w.Color == Red) {
+                        w.Color = Black;
+                        x.Parent.Color = Red;
                         RightRotate(x.Parent);
                         w = x.Parent.Left;
                     }
-                    if (w.Right.Color == Node.ColorEnum.Black && w.Left.Color == Node.ColorEnum.Black) {
-                        w.Color = Node.ColorEnum.Red;
+                    if (w.Right.Color == Black && w.Left.Color == Black) {
+                        w.Color = Red;
                         x = x.Parent;
                     } else {
-                        if (w.Left.Color == Node.ColorEnum.Black) {
-                            w.Right.Color = Node.ColorEnum.Black;
-                            w.Color = Node.ColorEnum.Red;
+                        if (w.Left.Color == Black) {
+                            w.Right.Color = Black;
+                            w.Color = Red;
                             LeftRotate(w);
                             w = x.Parent.Left;
                         }
                         w.Color = x.Parent.Color;
-                        x.Parent.Color = Node.ColorEnum.Black;
-                        w.Left.Color = Node.ColorEnum.Black;
+                        x.Parent.Color = Black;
+                        w.Left.Color = Black;
                         RightRotate(x.Parent);
                         x = Root;
                     }
                 }
             }
-            x.Color = Node.ColorEnum.Black;
-            SetBlackHeight();
+            x.Color = Black;
+            if (Root != Nil)
+                SetBlackHeight();
         }
 
         internal void Delete(Node z) {
             Node y = z;
-            Node.ColorEnum yOriginalColor = y.Color;
+            ColorEnum yOriginalColor = y.Color;
             Node x;
             if (z.Left == Nil) {
                 x = z.Right;
@@ -364,7 +364,7 @@ namespace RbTree {
                 y.Left.Parent = y;
                 y.Color = z.Color;
             }
-            if (yOriginalColor == Node.ColorEnum.Black)
+            if (yOriginalColor == Black)
                 DeleteFixup(x);
         }
 
@@ -395,7 +395,7 @@ namespace RbTree {
             int nodeBh = Bh;
             while (y.Right != Nil) {
                 y = y.Right;
-                if (y.Color == Node.ColorEnum.Black)
+                if (y.Color == Black)
                     nodeBh -= 1;
                 if (nodeBh == blackHeight)
                     return y;
@@ -410,7 +410,7 @@ namespace RbTree {
             int nodeBh = Bh;
             while (y.Left != Nil) {
                 y = y.Left;
-                if (y.Color == Node.ColorEnum.Black)
+                if (y.Color == Black)
                     nodeBh -= 1;
                 if (nodeBh == blackHeight)
                     return y;
@@ -427,7 +427,7 @@ namespace RbTree {
             Bh = 0;
             while (y.Right != Nil) {
                 y = y.Right;
-                if (y.Color == Node.ColorEnum.Black)
+                if (y.Color == Black)
                     Bh += 1;
             }
         }
@@ -438,7 +438,7 @@ namespace RbTree {
             int bh = Bh;
             Node current = Root.Key.CompareTo(n.Key) > 0 ? Root.Left : Root.Right;
             while (current != n) {
-                if (current.Color == Node.ColorEnum.Black)
+                if (current.Color == Black)
                     bh -= 1;
                 current = current.Key.CompareTo(n.Key) > 0 ? current.Left : current.Right;
             }
@@ -467,9 +467,9 @@ namespace RbTree {
                     "The join key must be greater than all keys in Tree 1 and less than all keys in Tree 2.");
 
             bool returnT1 = true;
-            Node k = new Node(key) { Color = Node.ColorEnum.Red };
+            Node k = new Node(key) { Color = Red };
             if (t1.Bh == t2.Bh) {
-                k.Color = Node.ColorEnum.Black;
+                k.Color = Black;
                 t1.Root.Parent = t2.Root.Parent = k;
                 k.Left = t1.Root;
                 k.Right = t2.Root;
@@ -484,7 +484,7 @@ namespace RbTree {
                 k.Right = t2.Root;
                 k.Parent = n.Parent;
                 n.Parent = t2.Root.Parent = k;
-                if (k.Parent.Color == Node.ColorEnum.Red)
+                if (k.Parent.Color == Red)
                     t1.InsertFixup(k);
             } else if (t1.Bh < t2.Bh) {
                 Node n = t2.MinWithBh(t1.Bh);
@@ -493,7 +493,7 @@ namespace RbTree {
                 k.Left = t1.Root;
                 k.Parent = n.Parent;
                 n.Parent = t1.Root.Parent = k;
-                if (k.Parent.Color == Node.ColorEnum.Red)
+                if (k.Parent.Color == Red)
                     t2.InsertFixup(k);
                 returnT1 = false;
             }
@@ -501,10 +501,10 @@ namespace RbTree {
             return returnT1 ? t1 : t2;
         }
 
-        internal static (Node left, T key, Node.ColorEnum color, Node right) Expose(Node n) {
+        internal static (Node left, T key, ColorEnum color, Node right) Expose(Node n) {
             Node left = n.Left;
             T key = n.Key;
-            Node.ColorEnum c = n.Color;
+            ColorEnum c = n.Color;
             Node right = n.Right;
 
             return (left, key, c, right);
@@ -538,6 +538,21 @@ namespace RbTree {
             throw new NotImplementedException();
         }
 
+
+        public List<T> InOrderSubtreeKeys(Node n, List<T> list) {
+            if (n == Nil)
+                return list;
+            InOrderSubtreeKeys(n.Left, list);
+            for (int i = 0; i < n.Count; ++i)
+                list.Add(n.Key);
+            InOrderSubtreeKeys(n.Right, list);
+            return list;
+        }
+
+        public List<T> InOrderKeys() {
+            return InOrderSubtreeKeys(Root, new List<T>());
+        }
+
         public void Print() {
             Queue<(int depth, Node node)> queue = new Queue<(int depth, Node node)>();
             List<(int depth, Node node)> list = new();
@@ -559,7 +574,7 @@ namespace RbTree {
                 string pad = string.Concat(Enumerable.Repeat("    ", n.depth));
                 Write(pad);
                 BackgroundColor = ConsoleColor.White;
-                ForegroundColor = n.node.Color == Node.ColorEnum.Red ? ConsoleColor.Red : ConsoleColor.Black;
+                ForegroundColor = n.node.Color == Red ? ConsoleColor.Red : ConsoleColor.Black;
                 Write($"{n.node.Key}: {n.node.Count}");
                 ResetColor();
                 WriteLine();

@@ -1,21 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using RbTree;
 using static System.Console;
 
 namespace Examples {
+    static class RandomSingleton
+    {
+        private static Random instance;
+
+        public static Random GetInstance()
+        {
+            return instance ??= new Random();
+        }
+    }
+
     class Program {
-        static void Display() {
+        private static Stopwatch watch = new Stopwatch();
+
+        static void Shuffle<T>(IList<T> list) {
+            int n = list.Count;
+            while (n > 1) {
+                n--;
+                int k = RandomSingleton.GetInstance().Next(n + 1);
+                T val = list[k];
+                list[k] = list[n];
+                list[n] = val;
+            }
+        }
+        
+        static void GenerateTree() {
             WriteLine("Enter a size, start value, and end value, separated by spaces.");
             var s = ReadLine()!.Trim();
             var l = s.Split().ToList();
             var (size, from, to) = (int.Parse(l[0]), int.Parse(l[1]), int.Parse(l[2]));
             var tree = new RbTree<int>();
-            var rng = new Random();
+            var rng = RandomSingleton.GetInstance();
             var toInclusive = to + 1;
-            for (int i = 0; i < size; ++i)
-                tree.Add(rng.Next(from, toInclusive));
-            tree.Print();
+            
+            watch.Start();
+            for (int i = 0; i < size; ++i) {
+                int j = rng.Next(from, toInclusive);
+                tree.Add(j);
+            }
+            watch.Stop();
+            
+            WriteLine($"Added {size} elements in {watch.ElapsedMilliseconds} milliseconds.");
+            WriteLine("Display tree? (Y/n)");
+            if (ReadLine()!.Trim().ToLower() == "y")
+                tree.Print();
+            var list = tree.InOrderKeys();
+            Shuffle(list);
+            
+            watch.Restart();
+            foreach (var key in list)
+                tree.Remove(key);
+            watch.Stop();
+            WriteLine($"Removed {size} elements in {watch.ElapsedMilliseconds} milliseconds.");
         }
 
         static void JoinExample() {
@@ -54,7 +96,7 @@ namespace Examples {
             t1.Add(0);
             t1.Add(-1);
             t1.Add(-2);
-            t1.Add(-3);
+            RbTree<int>.Node subroot = t1.Add(-3);
             t1.Add(-4);
             t1.Add(-5);
             
@@ -62,7 +104,7 @@ namespace Examples {
             
             WriteLine(Environment.NewLine);
 
-            var t2 = t1.Subtree(t1.Root.Left.Left);
+            var t2 = t1.Subtree(subroot);
             t2.Print();
 
             t1.Remove(-5);
@@ -73,7 +115,7 @@ namespace Examples {
         }
         
         static void Main(string[] args) {
-            Display();
+            GenerateTree();
         }
     }
 }

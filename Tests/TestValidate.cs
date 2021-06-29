@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using RbTree;
 using static RbTree.RbTree<int>;
+using static RbTree.ColorEnum;
 
 namespace Tests {
     [TestFixture]
@@ -32,8 +33,8 @@ namespace Tests {
         [Test]
         public void TestRedConsistency() {
             Node max = tree.Maximum(tree.Root);
-            max.Right = new Node(max.Key + 1) { Color = Node.ColorEnum.Red };
-            max.Right.Right = new Node(max.Right.Key + 1) { Color = Node.ColorEnum.Red };
+            max.Right = new Node(max.Key + 1) { Color = Red };
+            max.Right.Right = new Node(max.Right.Key + 1) { Color = Red };
             TestContext.Progress.WriteLine("Testing RedConsistency after manually violating property 4");
             Assert.AreEqual(false, tree.RedConsistency(tree.Root));
         }
@@ -42,14 +43,14 @@ namespace Tests {
         public void TestBlackConsistency() {
             TestContext.Progress.WriteLine("Testing BlackConsistency with invalid tree");
             Node max = tree.Maximum(tree.Root);
-            max.Right = new Node(max.Key + 1) { Color = Node.ColorEnum.Black };
+            max.Right = new Node(max.Key + 1) { Color = Black };
             max.Right.Parent = max;
             Assert.AreEqual(false, tree.BlackConsistency());
 
             max.Right.Parent = null;
             max.Right = tree.Nil;
 
-            max.Color = max.Color == Node.ColorEnum.Black ? Node.ColorEnum.Red : Node.ColorEnum.Black;
+            max.Color = max.Color == Black ? Red : Black;
             Assert.AreEqual(false, tree.BlackConsistency());
         }
     }
