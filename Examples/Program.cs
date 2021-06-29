@@ -8,11 +8,11 @@ using static System.Console;
 namespace Examples {
     static class RandomSingleton
     {
-        private static Random instance;
+        private static Random _instance;
 
         public static Random GetInstance()
         {
-            return instance ??= new Random();
+            return _instance ??= new Random();
         }
     }
 
@@ -33,8 +33,8 @@ namespace Examples {
         static void GenerateTree() {
             WriteLine("Enter a size, start value, and end value, separated by spaces.");
             var s = ReadLine()!.Trim();
-            var l = s.Split().ToList();
-            var (size, from, to) = (int.Parse(l[0]), int.Parse(l[1]), int.Parse(l[2]));
+            var l = s.Split().Select(x => int.Parse(x)).ToList();
+            var (size, from, to) = (l[0], l[1], l[2]);
             var tree = new RbTree<int>();
             var rng = RandomSingleton.GetInstance();
             var toInclusive = to + 1;
@@ -45,7 +45,7 @@ namespace Examples {
                 tree.Add(j);
             }
             watch.Stop();
-            
+
             WriteLine($"Added {size} elements in {watch.ElapsedMilliseconds} milliseconds.");
             WriteLine("Display tree? (Y/n)");
             if (ReadLine()!.Trim().ToLower() == "y")
